@@ -1,40 +1,23 @@
+// app.js
 const express = require("express");
-const mysql = require("mysql2/promise");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const userRoutes = require("./routes/user");
+const { createPool, startApp } = require("./db/database");
 
 const app = express();
 
-const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "1234",
-  database: "ezHedgeFunds",
-};
+// Middleware setup
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(cors());
 
-const createPool = async () => {
-  try {
-    const pool = await mysql.createPool(dbConfig);
-    // Try executing a simple query to check the connection
-    const [rows, fields] = await pool.query("SELECT 1");
-    console.log("Database connection successful!");
-    return pool;
-  } catch (err) {
-    console.error("Error creating connection pool:", err);
-    throw err; // Re-throw the error to stop the app from starting
-  }
-};
+// Routes
+app.get("/", (req, res) => {
+  res.send("Server is up and running");
+});
 
-const startApp = async () => {
-  try {
-    const pool = await createPool();
-    const port = process.env.PORT || 3000;
+app.use("/user", userRoutes.user);
 
-    app.listen(port, () => {
-      console.log(`Server listening on port ${port}`);
-    });
-  } catch (err) {
-    console.error("Error starting the app:", err);
-    process.exit(1);
-  }
-};
-
-startApp();
+// Start the server
+startApp(app);
