@@ -1,11 +1,13 @@
 // database.js
 const mysql = require("mysql2/promise");
+require("dotenv").config();
 
+// database configuration
 const dbConfig = {
-  host: "localhost",
-  user: "root",
-  password: "1234",
-  database: "ezHedgeFunds",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DB,
 };
 
 const pool = mysql.createPool(dbConfig);
@@ -22,6 +24,8 @@ const createPool = async () => {
     throw err;
   }
 };
+
+//Starts server
 const startApp = async (app) => {
   try {
     await createPool();
