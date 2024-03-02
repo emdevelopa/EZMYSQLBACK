@@ -1,0 +1,24 @@
+{
+  "name": "ezmysqlback",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emdevelopa/EZMYSQLBACK.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/emdevelopa/EZMYSQLBACK/issues"
+  },
+  "homepage": "https://github.com/emdevelopa/EZMYSQLBACK#readme",
+  "dependencies": {
+    "express": "^4.18.3",
+    "mysql2": "^3.9.2"
+  }
+}
