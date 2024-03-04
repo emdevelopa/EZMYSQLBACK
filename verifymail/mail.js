@@ -1,7 +1,7 @@
 // sendVerificationLink.js
 const nodemailer = require("nodemailer");
 
-async function toSend(smtpConfigs, username) {
+async function toSend(smtpConfigs, username, email, formdata) {
   const sendEmail = async (smtpConfig) => {
     const transporter = nodemailer.createTransport({
       service: smtpConfig.service,
@@ -16,20 +16,20 @@ async function toSend(smtpConfigs, username) {
 
     const mailOptions = {
       from: "no-reply@ezhedgefunds.com",
-      to: "gyimahemwurld@gmail.com",
+      to: email,
       subject: "This is meeting you well",
       html: `<html>
-                <body style="padding: 4em;display: flex;justify-content: center;align-items: center;">
-                  <section style="font-family: Verdana, Geneva, Tahoma, sans-serif;text-align: left;width:60%;">
+                <body style="padding: 2em;display: flex;justify-content: center;align-items: center;">
+                  <section style="font-family: Verdana, Geneva, Tahoma, sans-serif;text-align: left;">
                     <div>
-                      <img src="./logo.jpeg" alt="logo">
+                      <img src="https://drive.google.com/thumbnail?id=1-kbfjtQNPfPeuP_wAaSXicIosywyUUEy" alt="logo">
                     </div>
                     <p style="font-size: 36px;">Verify your email address</p>
 
                     <p>Hi ${username}</p>
 
                     <p>Please confirm that you want to use your email address with ezhedgefunds account. If you did not signup withthis email address, then feel free to ignore this email</p>
-                    <button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verifyemail address</button>
+                    <a href="http://127.0.0.1:5501/verifyAccount.html?enc=${formdata.encryptedData}&key=${formdata.secretKey}"><button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verifyemail address</button></a>
                     <p>Regards,</p>
                     <p>The ezhedgefunds Team</p>
                   </section>
@@ -41,13 +41,15 @@ async function toSend(smtpConfigs, username) {
     try {
       const info = await transporter.sendMail(mailOptions);
       console.log("Email sent successfully:", info.response);
+      return { sentMail: true };
     } catch (error) {
       console.error("Email sending failed:", error);
+      return { sentMail: false };
     }
   };
 
-  // Use Promise.all to send emails concurrently
-  await Promise.all(smtpConfigs.map(sendEmail));
+  const results = await Promise.all(smtpConfigs.map(sendEmail));
+  return results;
 }
 
 // toSend([smtpConfig]);

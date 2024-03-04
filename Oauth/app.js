@@ -1,11 +1,9 @@
-const express = require("express");
 const passport = require("passport");
 const session = require("express-session");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-const app = express();
 
-const pass = (app) => {
+const OAuthPassport = (app) => {
   app.use(
     session({
       secret: "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",
@@ -69,4 +67,4 @@ const pass = (app) => {
   const users = [];
 };
 
-module.exports = pass;
+module.exports = OAuthPassport;

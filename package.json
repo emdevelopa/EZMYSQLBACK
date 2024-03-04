@@ -27,6 +27,8 @@
     "nodemailer": "^6.9.11",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
+    "simple-crypto": "^0.0.5",
+    "simple-crypto-js": "^3.0.1",
     "uuid": "^9.0.1"
   }
 }

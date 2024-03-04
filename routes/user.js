@@ -1,6 +1,7 @@
 const express = require("express");
 const { pool } = require("../db/database");
 const uuid = require("uuid");
+const SimpleCrypto = require("simple-crypto-js").default;
 
 const user = express.Router();
 const details = {
@@ -13,40 +14,43 @@ const details = {
 const createUser = async (req, res) => {
   try {
     console.log(req.body);
-    const { name, email, telephone, password } = req.body;
+    const { key, enc } = req.body;
 
-    const userId = uuid.v4(); // Generate UUID for user ID
+    const simpleCrypto = new SimpleCrypto(key);
 
-    // Insert user into the 'users' table
-    await pool.query(
-      "INSERT INTO users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
-      [userId, name, email, telephone, password]
-    );
+    const decipherText = simpleCrypto.decrypt(enc);
+    console.log(decipherText);
+    // const userId = uuid.v4(); // Generate UUID for user ID
 
-    // Insert wallet for the user
-    await pool.query(
-      "INSERT INTO wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
-      [userId, 0, false]
-    );
+    // // Insert user into the 'users' table
+    // await pool.query(
+    //   "INSERT INTO users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
+    //   [userId, name, email, telephone, password]
+    // );
 
-    // Return user data with generated ID
-    const userData = {
-      id: userId,
-      name,
-      email,
-      telephone,
-      password,
-    };
+    // // Insert wallet for the user
+    // await pool.query(
+    //   "INSERT INTO wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
+    //   [userId, 0, false]
+    // );
 
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: userData });
+    // // Return user data with generated ID
+    // const userData = {
+    //   id: userId,
+    //   name,
+    //   email,
+    //   telephone,
+    //   password,
+    // };
+
+    // res
+    //   .status(201)
+    //   .json({ message: "User created successfully", user: userData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error creating user" });
   }
 };
-
 
 user.post("/", createUser);
 
