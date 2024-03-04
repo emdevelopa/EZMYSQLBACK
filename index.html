@@ -8,6 +8,7 @@
 </head>
 
 <body>
+    
     <button onclick="sendData()">click</button>
     <script>
         async function sendData() {
@@ -24,6 +25,7 @@
 
                 if (response.ok) {
                     console.log("Successful");
+                    console.log(await response.json());
                 } else {
                     const errorData = await response.json();
                     console.log(errorData);

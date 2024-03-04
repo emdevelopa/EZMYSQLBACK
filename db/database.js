@@ -16,7 +16,9 @@ const pool = mysql.createPool(dbConfig);
 const createPool = async () => {
   try {
     // Test the connection
+    
     await pool.query("SELECT 1");
+    await pool.query("USE ezHedgeFunds");
     console.log("Database connection successful!");
     return pool;
   } catch (err) {
