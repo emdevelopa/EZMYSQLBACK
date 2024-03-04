@@ -1,8 +1,7 @@
 // sendVerificationLink.js
-
 const nodemailer = require("nodemailer");
 
-async function toSend(smtpConfigs) {
+async function toSend(smtpConfigs, username) {
   const sendEmail = async (smtpConfig) => {
     const transporter = nodemailer.createTransport({
       service: smtpConfig.service,
@@ -19,23 +18,23 @@ async function toSend(smtpConfigs) {
       from: "no-reply@ezhedgefunds.com",
       to: "gyimahemwurld@gmail.com",
       subject: "This is meeting you well",
-      html: `<html><body style="padding: 4em;">
-    <section style="font-family: Verdana, Geneva, Tahoma, sans-serif;text-align: left;width:70%;">
-        <div>
-            <img src="./logo.jpeg" alt="logo">
-        </div>
-        <p style="font-size: 36px;">Verify your email address</p>
+      html: `<html>
+                <body style="padding: 4em;display: flex;justify-content: center;align-items: center;">
+                  <section style="font-family: Verdana, Geneva, Tahoma, sans-serif;text-align: left;width:60%;">
+                    <div>
+                      <img src="./logo.jpeg" alt="logo">
+                    </div>
+                    <p style="font-size: 36px;">Verify your email address</p>
 
-        <p>Hi Gyimah</p>
+                    <p>Hi ${username}</p>
 
-        <p>Please confirm that you want to use your email address with ezhedgefunds account. If you did not request this change, then feel free to ignore this email</p>
-
-        <button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verify new email address</button>
-
-        <p>Regards,</p>
-        <p>The ezhedgefunds Team</p>
-    </section>
-</body></html>`,
+                    <p>Please confirm that you want to use your email address with ezhedgefunds account. If you did not signup withthis email address, then feel free to ignore this email</p>
+                    <button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verifyemail address</button>
+                    <p>Regards,</p>
+                    <p>The ezhedgefunds Team</p>
+                  </section>
+                </body>
+              </html>`,
       text: "Nice day with you",
     };
 

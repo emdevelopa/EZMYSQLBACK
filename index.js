@@ -3,11 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const userRoutes = require("./routes/user");
-const { createPool, startApp } = require("./db/database");
-const session = require("express-session");
-const passport = require("passport");
+const { startApp } = require("./db/database");
 const pass = require("./Oauth/app");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const oauthRoutes = require("./Oauth/routes/auth");
 const toSend = require("./verifymail/mail");
 
