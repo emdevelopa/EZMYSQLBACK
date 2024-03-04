@@ -7,6 +7,7 @@ const { startApp } = require("./db/database");
 const pass = require("./Oauth/app");
 const oauthRoutes = require("./Oauth/routes/auth");
 const toSend = require("./verifymail/mail");
+const smtpConfig = require("./verifymail/smtpConfig");
 
 const app = express();
 
@@ -20,15 +21,7 @@ pass(app);
 app.get("/", (req, res) => {
   res.send("Server is up and running");
 });
-const smtpConfig = {
-  host: "vda4300.is.cc",
-  port: 587,
-  // secure: true,
-  auth: {
-    user: "ezhedgef@ezhedgefunds.com",
-    pass: "ZrzLu2W2",
-  },
-};
+
 app.post("/submit", (req, res) => {
   console.log(req.body);
 });
