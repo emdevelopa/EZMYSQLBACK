@@ -44,9 +44,6 @@ const dashboard = (req, res) => {
   }
 };
 
-// authGoogle.get("/", already)
-// authGoogle.get("/", dashboard);
-
 
 // Export the authGoogle
 module.exports = { authGoogle, already, dashboard };

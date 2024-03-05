@@ -1,23 +1,17 @@
 const express = require("express");
 const { pool } = require("../db/database");
 const uuid = require("uuid");
+const toSend = require("../verifymail/mail");
+const smtpConfig = require("../verifymail/smtpConfig");
 const SimpleCrypto = require("simple-crypto-js").default;
-
 const user = express.Router();
-const details = {
-  name: "john doe",
-  email: "john@gmail.com",
-  telephone: 9999,
-  password: "1234",
-};
 
+// Register User
 const createUser = async (req, res) => {
   try {
     console.log(req.body);
     const { key, enc } = req.body;
-
     const simpleCrypto = new SimpleCrypto(key);
-
     const decipherData = simpleCrypto.decrypt(enc);
     console.log(decipherData);
     const { name, email, telephone, password } = decipherData;
@@ -53,7 +47,46 @@ const createUser = async (req, res) => {
   }
 };
 
-user.post("/", createUser);
+// User Log-in
+const userLogin = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { email, password } = req.body;
+    const [result] = await pool.query("SELECT * FROM users WHERE email=?", [
+      email,
+    ]);
+    if (result.length <= 0) {
+      res.status(404).json({messeage:"Email does not exist"})
+      console.log("no user found");
+    }
+    console.log(result);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// send Link to Email
+const sendVerificationLink = async (req, res) => {
+  const { name, email } = req.body;
+  const secretKey = SimpleCrypto.generateRandom();
+  // Create a SimpleCrypto instance
+  const simpleCrypto = new SimpleCrypto(secretKey);
+  // Encrypt the object
+  const encryptedData = simpleCrypto.encrypt(req.body);
+  const results = await toSend([smtpConfig], name, email, {
+    encryptedData,
+    secretKey,
+  });
+  if (results[0].sentMail) {
+    res.status(200).json({ message: "verification link sent to email" });
+  } else {
+    res.status(503).json({ message: "failed to send mail" });
+  }
+};
+
+user.post("/register", createUser);
+user.post("/login", userLogin);
+user.post("/send-message", sendVerificationLink);
 
 module.exports = {
   user,
