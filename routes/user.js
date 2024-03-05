@@ -18,34 +18,35 @@ const createUser = async (req, res) => {
 
     const simpleCrypto = new SimpleCrypto(key);
 
-    const decipherText = simpleCrypto.decrypt(enc);
-    console.log(decipherText);
-    // const userId = uuid.v4(); // Generate UUID for user ID
+    const decipherData = simpleCrypto.decrypt(enc);
+    console.log(decipherData);
+    const { name, email, telephone, password } = decipherData;
+    const userId = uuid.v4(); // Generate UUID for user ID
 
-    // // Insert user into the 'users' table
-    // await pool.query(
-    //   "INSERT INTO users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
-    //   [userId, name, email, telephone, password]
-    // );
+    // Insert user into the 'users' table
+    await pool.query(
+      "INSERT INTO users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
+      [userId, name, email, telephone, password]
+    );
 
-    // // Insert wallet for the user
-    // await pool.query(
-    //   "INSERT INTO wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
-    //   [userId, 0, false]
-    // );
+    // Insert wallet for the user
+    await pool.query(
+      "INSERT INTO wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
+      [userId, 0, false]
+    );
 
-    // // Return user data with generated ID
-    // const userData = {
-    //   id: userId,
-    //   name,
-    //   email,
-    //   telephone,
-    //   password,
-    // };
+    // Return user data with generated ID
+    const userData = {
+      id: userId,
+      name,
+      email,
+      telephone,
+      password,
+    };
 
-    // res
-    //   .status(201)
-    //   .json({ message: "User created successfully", user: userData });
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: userData });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error creating user" });
