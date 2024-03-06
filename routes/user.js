@@ -7,7 +7,7 @@ const {
 const user = express.Router();
 
 user.post("/register", createUser);
-user.post("/api/login", userLogin);
+user.post("/login", userLogin);
 user.post("/send-message", sendVerificationLink);
 
 module.exports = {

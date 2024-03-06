@@ -14,14 +14,15 @@ document.addEventListener("DOMContentLoaded", function () {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ username, password }),
     })
       .then((response) => response.json())
       .then((data) => {
-          if (data.success) {
-              console.log(data);
-              
-        //   window.location.href = "/dashboard";
+        if (data.success) {
+          console.log(data);
+
+          //   window.location.href = "/dashboard";
         } else {
           alert("Invalid username or password. Try again.");
         }

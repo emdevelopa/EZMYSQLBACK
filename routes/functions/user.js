@@ -3,7 +3,10 @@ const uuid = require("uuid");
 const toSend = require("../../verifymail/mail");
 const smtpConfig = require("../../verifymail/smtpConfig");
 const SimpleCrypto = require("simple-crypto-js").default;
-const session = require("express-session");
+
+
+
+
 
 // Register User
 const createUser = async (req, res) => {
@@ -66,26 +69,16 @@ const userLogin = async (req, res) => {
 
       // Set session properties
 
-      req.session.user = "result";
+      req.session.user = req.body;
       req.session.loggedIn = true;
-      res.send({
-        loggedIn: true,
-        user: req.session.user,
-        userProperty: req.session.user,
-      });
+     
       // console.log(req.session);
-   
-      // res.cookie("myCookie", "cookieValue", {
-      //   maxAge: 3600000,
-      //   httpOnly: true,
-      //   secure: true,
-      //   sameSite: "strict",
-      // });
 
-      // res
-      //   .status(201)
-      //   .json({ message: "user found", encryptedData, id: result[0].id });
-      // console.log(result[0]);
+
+      res
+        .status(201)
+        .json({ message: "user found", encryptedData, id: result[0].id });
+      console.log(result[0]);
     }
   } catch (error) {
     console.log(error);

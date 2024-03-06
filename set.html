@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Cookie Example</title>
+</head>
+
+<body>
+
+    <h1>Set and Get Cookie Example</h1>
+
+    <button onclick="setCookie()">Set Cookie</button>
+
+    <button onclick="getCookie()">Get Cookie</button>
+
+    <p id="cookieValue"></p>
+
+    <script>
+        function setCookie() {
+            // Make a request to the "/login" route using Fetch API with credentials
+            fetch('http://localhost:3000/set-cookie', {
+                method: 'POST',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    console.log(data); // Display a message (you can customize this)
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function getCookie() {
+            // Make a request to a specific endpoint to get the cookie value
+            fetch('http://localhost:3000/get-cookie', {
+                method: 'GET',
+                credentials: 'include'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(cookieValue => {
+                    if (cookieValue) {
+                        document.getElementById('cookieValue').innerText = cookieValue;
+                    } else {
+                        document.getElementById('cookieValue').innerText = "Cookie not found";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+
+</body>
+
+</html>

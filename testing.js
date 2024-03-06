@@ -1,69 +1,41 @@
 const express = require("express");
-const session = require("express-session");
-const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
-
-const MemoryStore = require("memorystore")(session); // Use MemoryStore for session data
+const bodyParser = require("body-parser");
 
 const app = express();
-
-app.use(bodyParser.json());
-app.use(
-  session({
-    secret: "your-secret-key",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
-    store: new MemoryStore(), // Use MemoryStore for session data
-  })
-);
-
-app.use(
-  cors({
-    origin: ["http://127.0.0.1:5501", "http://127.0.0.1:5500"],
-    credentials: true, // Allow credentials (cookies, in this case)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Origin", "X-Requested-With", "Content-Type", "Accept"],
-  })
-);
-
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
-
-  if (username === "demo" && password === "12") {
-    req.session.user = username;
-    res.json({ success: true });
-  } else {
-    res.json({ success: false });
-  }
-});
-
-app.get("/dashboard", (req, res) => {
-  if (req.session.user) {
-    res.redirect("http://localhost:2000/dashboard.html");
-  } else {
-    res.redirect("/");
-  }
-});
-
-app.get("/checkAuth", (req, res) => {
-  console.log(req.session); // Log session information
-  const authenticated = req.session.user !== undefined;
-  const username = authenticated ? req.session.user : null;
-
-  res.json({ authenticated, username });
-});
-
-app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error destroying session:", err);
-    }
-    res.json({ success: true });
-  });
-});
-
 const port = 3000;
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Middleware to parse cookies
+app.use(cookieParser());
+app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+
+// Route to set a cookie
+app.post("/set-cookie", (req, res) => {
+  // Set a cookie with name 'exampleCookie' and value 'Hello, Cookie!'
+  console.log(req.body);
+  res.cookie("example", "Hello, Cookie!");
+
+  // Send a response
+  res.send("Cookie has been set!");
+});
+
+// Route to get the cookie
+app.get("/get-cookie", (req, res) => {
+  // Retrieve the value of the 'exampleCookie' cookie
+  const cookieValue = req.cookies.example;
+
+  // Check if the cookie exists
+  if (cookieValue) {
+    res.send(`Cookie value: ${cookieValue}`);
+  } else {
+    res.send("Cookie not found");
+  }
+});
+
+// Start the server
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

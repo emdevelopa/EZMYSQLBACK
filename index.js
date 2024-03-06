@@ -7,84 +7,36 @@ const { startApp } = require("./db/database");
 const userRoutes = require("./routes/user");
 const oauthRoutes = require("./routes/auth");
 const cookieParser = require("cookie-parser");
-const session = require("express-session");
 
 const app = express();
-const corsOptions = {
-  origin: ["http://127.0.0.1:5501", "http://localhost:5500"], // Update with your actual client origin
-  credentials: true,
-};
 
 // Middleware setup
-app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser("yourSecretKey"));
-app.use(
-  session({
-    secret: "yourSecretKey",
-    resave: false,
-    saveUninitialized: true, // Set to true if needed
-  })
-);
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
-  res.header("Access-Control-Allow-Credentials", true);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
+app.use(cookieParser());
+const corsOptions = {
+  credentials: true,
+  origin: ["http://localhost:5173"],
+};
+app.use(cors(corsOptions));
 
 OAuthPassport(app);
 
-app.post("/your-route", (req, res) => {
-  req.session.user = "result";
-  req.session.loggedIn = true;
-  res.send('Login successful! <a href="/dashboard">Go to dashboard</a>');
-  // other logic...
-});
-
 app.get("/another-route", (req, res) => {
-  // Access the session data
-
-  const user = req.session.user;
-  const loggedIn = req.session.loggedIn;
-
-  console.log("GET", { user: user, logged: loggedIn });
-  res.send({ loggedIn });
-  // other logic...
-});
-
-// Routes
-app.get("/", (req, res) => {
-  console.log(req.session);
-  const user = req.session.user;
-  const loggedIn = req.session.loggedIn;
-  console.log(user, loggedIn);
-  // if (req.session.page_views) {
-  //   req.session.page_views++;
-  //   res.send("You visited this page " + req.session.page_views + " times");
-  // } else {
-  //   req.session.page_views = 1;
-  //   res.send("Welcome to this page for the first time!");
-  // }
-
-  if (req.session.page_views) {
+  if (req.session.user) {
+    const user = req.session.user;
+    const loggedIn = req.session.loggedIn;
     res.send({
-      loggedIn: true,
-      user: req.session.user,
+      loggedIn,
+      user,
       userProperty: req.session.user,
     });
-  } else {
-    req.session.page_views = 1;
-
-    res.send({ loggedIn: false });
-  }
-  // res.send("Server is up and running");
+  } else
+    res.send({
+      loggedIn: false,
+    });
 });
+
 app.get("/api/login", (req, res) => {
   console.log(req.session);
   console.log(req.cookies);
@@ -100,10 +52,6 @@ app.get("/api/login", (req, res) => {
     res.send({ loggedIn: false });
   }
 });
-// app.post("/submit", (req, res) => {
-//   console.log(req.body);
-// });
-// app.post("/send-message", );
 
 app.use("/auth", oauthRoutes.authGoogle);
 app.use("/es", oauthRoutes.already);
