@@ -4,14 +4,9 @@ const toSend = require("../../verifymail/mail");
 const smtpConfig = require("../../verifymail/smtpConfig");
 const SimpleCrypto = require("simple-crypto-js").default;
 
-
-
-
-
 // Register User
 const createUser = async (req, res) => {
   try {
-    console.log(req.body);
     const { key, enc } = req.body;
     const simpleCrypto = new SimpleCrypto(key);
     const decipherData = simpleCrypto.decrypt(enc);
@@ -52,7 +47,7 @@ const createUser = async (req, res) => {
 // User Log-in
 const userLogin = async (req, res) => {
   try {
-    console.log(req.body);
+    // console.log(req.body);
     const { email, password } = req.body;
     const [result] = await pool.query(
       "SELECT * FROM users WHERE email=? AND password=?",
@@ -60,7 +55,7 @@ const userLogin = async (req, res) => {
     );
 
     if (result.length <= 0) {
-      res.status(404).json({ message: "Email does not exist" });
+      res.status(404).json({ message: "email or password not found" });
       console.log("no user found");
     } else {
       const secretKey = SimpleCrypto.generateRandom();
@@ -69,16 +64,11 @@ const userLogin = async (req, res) => {
 
       // Set session properties
 
-      req.session.user = req.body;
+      req.session.user = result[0].id;
       req.session.loggedIn = true;
-     
       // console.log(req.session);
 
-
-      res
-        .status(201)
-        .json({ message: "user found", encryptedData, id: result[0].id });
-      console.log(result[0]);
+      res.status(201).json({ message: "user found", userInfo: result[0] });
     }
   } catch (error) {
     console.log(error);
