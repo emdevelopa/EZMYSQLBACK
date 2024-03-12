@@ -16,13 +16,13 @@ const createUser = async (req, res) => {
 
     // Insert user into the 'users' table
     await pool.query(
-      "INSERT INTO users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO ezHedgeFunds.users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
       [userId, name, email, telephone, password]
     );
 
     // Insert wallet for the user
     await pool.query(
-      "INSERT INTO wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
+      "INSERT INTO ezHedgeFunds.wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
       [userId, 0, false]
     );
 
@@ -50,7 +50,7 @@ const userLogin = async (req, res) => {
     // console.log(req.body);
     const { email, password } = req.body;
     const [result] = await pool.query(
-      "SELECT * FROM users WHERE email=? AND password=?",
+      "SELECT * FROM ezHedgeFunds.users WHERE email=? AND password=?",
       [email, password]
     );
 

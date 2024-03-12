@@ -10,6 +10,7 @@ const cookieParser = require("cookie-parser");
 const loginSession = require("./routes/loginsession");
 const getUserData = require("./routes/getUserData");
 const session = require("express-session");
+const invest = require("./routes/investment");
 
 const app = express();
 
@@ -44,13 +45,7 @@ app.use("/dashboard", oauthRoutes.dashboard);
 app.use("/", userRoutes.user);
 app.use("/login-session", loginSession);
 app.use("/get-userData/:userId", getUserData);
-
-app.post("/invest", (req, res) => {
-  const { userId, amount } = req.body;
-  console.log(req.body);
-  console.log(amount, userId);
-  res.send({ status: 200 });
-});
+app.use("/invest",invest);
 
 // Start the server
 startApp(app);

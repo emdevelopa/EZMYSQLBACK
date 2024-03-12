@@ -8,6 +8,9 @@ const dbConfig = {
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DB,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 };
 
 const pool = mysql.createPool(dbConfig);
@@ -16,9 +19,7 @@ const pool = mysql.createPool(dbConfig);
 const createPool = async () => {
   try {
     // Test the connection
-    
     await pool.query("SELECT 1");
-    await pool.query("USE ezHedgeFunds");
     console.log("Database connection successful!");
     return pool;
   } catch (err) {
@@ -26,6 +27,7 @@ const createPool = async () => {
     throw err;
   }
 };
+
 
 //Starts server
 const startApp = async (app) => {
