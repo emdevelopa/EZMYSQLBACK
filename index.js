@@ -11,6 +11,8 @@ const loginSession = require("./routes/loginsession");
 const getUserData = require("./routes/getUserData");
 const session = require("express-session");
 const invest = require("./routes/investment");
+const investments = require("./routes/getInvestments");
+const db = require("./db/getCurrrentDB");
 
 const app = express();
 
@@ -20,7 +22,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const corsOptions = {
   credentials: true,
-  origin: ["http://localhost:5173"],
+  origin: [process.env.USERDASHBOARDURL, process.env.HOMEURL],
 };
 app.use(cors(corsOptions));
 
@@ -39,17 +41,21 @@ app.use(
 
 OAuthPassport(app);
 
+app.get("/", (req, res) => {
+  res.send(`Server is up and running!, current db is ${db}`);
+});
+
 app.use("/auth", oauthRoutes.authGoogle);
 app.use("/es", oauthRoutes.already);
 app.use("/dashboard", oauthRoutes.dashboard);
 app.use("/", userRoutes.user);
 app.use("/login-session", loginSession);
 app.use("/get-userData/:userId", getUserData);
-app.use("/invest",invest);
+app.use("/get-investments/:userId", investments);
+app.use("/invest", invest);
 
 // Start the server
 startApp(app);
-
 // const smtpConfig = {
 //   service: "gmail",
 //   host: "smtp.elasticemail.com",

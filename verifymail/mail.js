@@ -1,7 +1,9 @@
 // sendVerificationLink.js
 const nodemailer = require("nodemailer");
 
-async function toSend(smtpConfigs, username, email, formdata) {
+const URL = process.env.HOMEURL;
+
+async function toSend(smtpConfigs, username, email, encryptedData) {
   const sendEmail = async (smtpConfig) => {
     const transporter = nodemailer.createTransport({
       service: smtpConfig.service,
@@ -13,7 +15,7 @@ async function toSend(smtpConfigs, username, email, formdata) {
         pass: smtpConfig.auth.pass,
       },
     });
-
+    // console.log(formdata);
     const mailOptions = {
       from: "no-reply@ezhedgefunds.com",
       to: email,
@@ -29,7 +31,9 @@ async function toSend(smtpConfigs, username, email, formdata) {
                     <p>Hi ${username}</p>
 
                     <p>Please confirm that you want to use your email address with ezhedgefunds account. If you did not signup withthis email address, then feel free to ignore this email</p>
-                    <a href="http://127.0.0.1:5501/verifyAccount.html?enc=${formdata.encryptedData}&key=${formdata.secretKey}"><button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verifyemail address</button></a>
+                    <a href="${URL}/verifyAccount.html?enc=${encodeURIComponent(
+        JSON.stringify(encryptedData)
+      )}"><button style="background-color: black;color: white;border: none; padding: 1em;border-radius: 5px;">Verifyemail address</button></a>
                     <p>Regards,</p>
                     <p>The ezhedgefunds Team</p>
                   </section>

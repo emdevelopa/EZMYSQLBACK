@@ -2,45 +2,87 @@ const { pool } = require("../../db/database");
 const uuid = require("uuid");
 const toSend = require("../../verifymail/mail");
 const smtpConfig = require("../../verifymail/smtpConfig");
-const SimpleCrypto = require("simple-crypto-js").default;
+const crypto = require("crypto");
+const db = require("../../db/getCurrrentDB");
 
+const algorithm = "aes-256-cbc";
+const key = "abcdefghijklmnopqrstuvwxyz123456";
+const iv = crypto.randomBytes(16);
+
+function encrypt(text) {
+  let cipher = crypto.createCipheriv(algorithm, Buffer.from(key), iv);
+  let encrypted = cipher.update(text);
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+  return { iv: iv.toString("hex"), encryptedData: encrypted.toString("hex") };
+}
+
+function decrypt(iv, encryptedData) {
+  let decipher = crypto.createDecipheriv(
+    algorithm,
+    Buffer.from(key),
+    Buffer.from(iv, "hex")
+  );
+  let decrypted = decipher.update(Buffer.from(encryptedData, "hex"));
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
 // Register User
 const createUser = async (req, res) => {
   try {
-    const { key, enc } = req.body;
-    const simpleCrypto = new SimpleCrypto(key);
-    const decipherData = simpleCrypto.decrypt(enc);
-    console.log(decipherData);
-    const { name, email, telephone, password } = decipherData;
+    // const { enc } = req.body;
+    const enc = req.query.enc;
+
+    const encryptedData = JSON.parse(decodeURIComponent(enc));
+    const decryptedData = decrypt(
+      encryptedData.iv,
+      encryptedData.encryptedData
+    );
+    console.log("Decrypted data:", JSON.parse(decryptedData));
+
+    const userData = JSON.parse(decryptedData);
+
+    const { fullname, email, telephone, password } = userData;
+
     const userId = uuid.v4(); // Generate UUID for user ID
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS ${db}.users (
+          id varchar(255) NOT NULL,
+          name varchar(250) NOT NULL,
+          email varchar(250) NOT NULL,
+          telephone varchar(250) NOT NULL,
+          password varchar(250) NOT NULL,
+          PRIMARY KEY (id)
+        )
+    `);
+
+    await pool.query(`
+        CREATE TABLE IF NOT EXISTS ${db}.wallets (
+          wallet_id varchar(255) NOT NULL,
+          wallet_balance decimal(10,2) NOT NULL,
+          investment_in_progress tinyint(1) DEFAULT NULL,
+          PRIMARY KEY (wallet_id)
+        )
+    `);
 
     // Insert user into the 'users' table
     await pool.query(
-      "INSERT INTO ezHedgeFunds.users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)",
-      [userId, name, email, telephone, password]
+      `INSERT INTO ${db}.users (id, name, email, telephone, password) VALUES (?, ?, ?, ?, ?)`,
+      [userId, fullname, email, telephone, password]
     );
 
     // Insert wallet for the user
     await pool.query(
-      "INSERT INTO ezHedgeFunds.wallet (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)",
+      `INSERT INTO ${db}.wallets (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)`,
       [userId, 0, false]
     );
-
-    // Return user data with generated ID
-    const userData = {
-      id: userId,
-      name,
-      email,
-      telephone,
-      password,
-    };
 
     res
       .status(201)
       .json({ message: "User created successfully", user: userData });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error creating user" });
+    res.status(500).json({ message: "Error creating user", error });
   }
 };
 
@@ -50,7 +92,7 @@ const userLogin = async (req, res) => {
     // console.log(req.body);
     const { email, password } = req.body;
     const [result] = await pool.query(
-      "SELECT * FROM ezHedgeFunds.users WHERE email=? AND password=?",
+      `SELECT * FROM ${db}.users WHERE email=? AND password=?`,
       [email, password]
     );
 
@@ -58,9 +100,9 @@ const userLogin = async (req, res) => {
       res.status(404).json({ message: "email or password not found" });
       console.log("no user found");
     } else {
-      const secretKey = SimpleCrypto.generateRandom();
-      const simpleCrypto = new SimpleCrypto(secretKey);
-      const encryptedData = simpleCrypto.encrypt(result[0]);
+      // const secretKey = SimpleCrypto.generateRandom();
+      // const simpleCrypto = new SimpleCrypto(secretKey);
+      // const encryptedData = simpleCrypto.encrypt(result[0]);
 
       // Set session properties
 
@@ -77,20 +119,21 @@ const userLogin = async (req, res) => {
 
 // send Link to Email
 const sendVerificationLink = async (req, res) => {
-  const { name, email } = req.body;
-  const secretKey = SimpleCrypto.generateRandom();
-  // Create a SimpleCrypto instance
-  const simpleCrypto = new SimpleCrypto(secretKey);
-  // Encrypt the object
-  const encryptedData = simpleCrypto.encrypt(req.body);
-  const results = await toSend([smtpConfig], name, email, {
-    encryptedData,
-    secretKey,
-  });
+  const { fullname, email, telephone, password, confirm_password } = req.body;
+  const encryptedData = encrypt(JSON.stringify(req.body));
+  console.log(encryptedData);
+
+  const results = await toSend([smtpConfig], fullname, email, encryptedData);
+  console.log(results);
   if (results[0].sentMail) {
-    res.status(200).json({ message: "verification link sent to email" });
+    res.status(200).json({
+      message: "verification link sent to email",
+      sent: results[0].sentMail,
+    });
   } else {
-    res.status(503).json({ message: "failed to send mail" });
+    res
+      .status(503)
+      .json({ message: "failed to send mail", sent: results[0].error });
   }
 };
 
