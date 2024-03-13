@@ -8,7 +8,7 @@ const getUserData = async (req, res) => {
   if (userId) {
     try {
       const userQuery = `SELECT * FROM ${db}.users WHERE id=?`;
-      const walletQuery = `SELECT * FROM ${db}.wallet WHERE wallet_id =?`;
+      const walletQuery = `SELECT * FROM ${db}.wallets WHERE wallet_id =?`;
 
       const [userData] = await pool.query(userQuery, [userId]);
       const [walletData] = await pool.query(walletQuery, [userId]);

@@ -1,6 +1,7 @@
 const { pool } = require("../db/database");
 const uuid = require("uuid");
 const moment = require("moment");
+const db = require("../db/getCurrrentDB");
 
 const invest = async (req, res) => {
   const { userId, amount } = req.body;
@@ -16,11 +17,29 @@ const invest = async (req, res) => {
   let amountInReturn = 0;
   let roi = 0;
 
+  await pool.query(`
+        CREATE TABLE IF NOT EXISTS ${db}.investments (
+          investment_id varchar(36) NOT NULL,
+          wallet_id varchar(255) DEFAULT NULL,
+          amount decimal(10,2) DEFAULT NULL,
+          start_date date DEFAULT NULL,
+          end_date date DEFAULT NULL,
+          status varchar(50) DEFAULT NULL,
+          start int DEFAULT NULL,
+          end int DEFAULT NULL,
+          amount_in_return decimal(10,2) DEFAULT NULL,
+          roi int DEFAULT NULL,
+          PRIMARY KEY (investment_id),
+          KEY wallet_id (wallet_id),
+          CONSTRAINT investments_ibfk_1 FOREIGN KEY (wallet_id) REFERENCES wallet (wallet_id)
+        )
+    `);
+
   const [walletResult] = await pool.query(
-    "SELECT * FROM  ezHedgeFunds.wallet WHERE wallet_id = ?",
+    `SELECT * FROM  ${db}.wallets WHERE wallet_id = ?`,
     [userId]
   );
- 
+
   if (walletResult[0].wallet_balance <= 0) {
     res.status(403).send({ message: "insufficient balance" });
   }
@@ -28,12 +47,11 @@ const invest = async (req, res) => {
   else {
     try {
       // Deduct the investment amount from the wallet balance
-      const deductAmountQuery =
-        "UPDATE ezHedgeFunds.wallet SET wallet_balance = wallet_balance - ?, investment_in_progress = 1 WHERE wallet_id = ?";
+      const deductAmountQuery = `UPDATE ${db}.wallets SET wallet_balance = wallet_balance - ?, investment_in_progress = 1 WHERE wallet_id = ?`;
       await pool.query(deductAmountQuery, [amount, walletId]);
 
       await pool.query(
-        "INSERT INTO ezHedgeFunds.investments (investment_id, wallet_id, amount, start_date, end_date, status, start, end, amount_in_return, roi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        `INSERT INTO ${db}.investments (investment_id, wallet_id, amount, start_date, end_date, status, start, end, amount_in_return, roi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           investmentId,
           walletId,
@@ -59,7 +77,7 @@ const invest = async (req, res) => {
 
         // Update the database with the new start and ROI values
         await pool.query(
-          "UPDATE ezHedgeFunds.investments SET amount_in_return = ?, roi = ?, start = ? WHERE investment_id = ?",
+          `UPDATE ${db}.investments SET amount_in_return = ?, roi = ?, start = ? WHERE investment_id = ?`,
           [amountInReturn, roi, start, investmentId]
         );
 
@@ -73,12 +91,11 @@ const invest = async (req, res) => {
         if (start === end) {
           // Update the end time and status in the database
           await pool.query(
-            "UPDATE ezhedgef_ezHedgeFunds.investments SET status = ? WHERE investment_id = ?",
+            `UPDATE ${db}.investments SET status = ? WHERE investment_id = ?`,
             ["completed", investmentId]
           );
 
-          const updateWalletQuery =
-            "UPDATE ezHedgeFunds.wallet SET investment_in_progress = ? WHERE wallet_id = ?";
+          const updateWalletQuery = `UPDATE ${db}.wallet SET investment_in_progress = ? WHERE wallet_id = ?`;
           await pool.query(updateWalletQuery, [0, walletId]);
 
           // Clear the interval and stop the investment calculation
