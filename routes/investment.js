@@ -32,7 +32,7 @@ const invest = async (req, res) => {
       end INT,
       amount_in_return DECIMAL(10, 2),
       roi DECIMAL(5, 2),
-      FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
+      FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id) ON DELETE CASCADE
     )
   `);
 

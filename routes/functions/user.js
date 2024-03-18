@@ -47,7 +47,7 @@ const createUser = async (req, res) => {
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS ${db}.users (
-          id varchar(255) NOT NULL,
+          id varchar(100) NOT NULL,
           name varchar(250) NOT NULL,
           email varchar(250) NOT NULL,
           telephone varchar(250) NOT NULL,
