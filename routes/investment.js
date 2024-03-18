@@ -6,6 +6,8 @@ const db = require("../db/getCurrrentDB");
 const invest = async (req, res) => {
   const { userId, amount } = req.body;
 
+  console.log("Received request with userId:", userId);
+
   // Set investment parameters
   const investmentId = uuid.v4();
   const walletId = userId; // Assuming walletId is the same as userId
@@ -17,39 +19,40 @@ const invest = async (req, res) => {
   let amountInReturn = 0;
   let roi = 0;
 
+  console.log("Creating investments table if not exists...");
   await pool.query(`
-        CREATE TABLE IF NOT EXISTS ${db}.investments (
-          investment_id varchar(36) NOT NULL,
-          wallet_id varchar(255) DEFAULT NULL,
-          amount decimal(10,2) DEFAULT NULL,
-          start_date date DEFAULT NULL,
-          end_date date DEFAULT NULL,
-          status varchar(50) DEFAULT NULL,
-          start int DEFAULT NULL,
-          end int DEFAULT NULL,
-          amount_in_return decimal(10,2) DEFAULT NULL,
-          roi int DEFAULT NULL,
-          PRIMARY KEY (investment_id),
-          KEY wallet_id (wallet_id),
-          CONSTRAINT investments_ibfk_1 FOREIGN KEY (wallet_id) REFERENCES wallet (wallet_id)
-        )
-    `);
+    CREATE TABLE IF NOT EXISTS ${db}.investments (
+      investment_id CHAR(36) PRIMARY KEY,
+      wallet_id CHAR(36),
+      amount DECIMAL(10, 2),
+      start_date DATE,
+      end_date DATE,
+      status VARCHAR(20),
+      start INT,
+      end INT,
+      amount_in_return DECIMAL(10, 2),
+      roi DECIMAL(5, 2),
+      FOREIGN KEY (wallet_id) REFERENCES wallets(wallet_id)
+    )
+  `);
 
+  console.log("Checking wallet balance...");
   const [walletResult] = await pool.query(
     `SELECT * FROM  ${db}.wallets WHERE wallet_id = ?`,
     [userId]
   );
 
   if (walletResult[0].wallet_balance <= 0) {
-    res.status(403).send({ message: "insufficient balance" });
-  }
-  // Insert the investment record into the database
-  else {
+    console.log("Insufficient balance, sending response...");
+    res.status(403).send({ message: "Insufficient balance" });
+  } else {
+    // Insert the investment record into the database
     try {
-      // Deduct the investment amount from the wallet balance
+      console.log("Deducting amount from wallet balance...");
       const deductAmountQuery = `UPDATE ${db}.wallets SET wallet_balance = wallet_balance - ?, investment_in_progress = 1 WHERE wallet_id = ?`;
       await pool.query(deductAmountQuery, [amount, walletId]);
 
+      console.log("Inserting investment record into database...");
       await pool.query(
         `INSERT INTO ${db}.investments (investment_id, wallet_id, amount, start_date, end_date, status, start, end, amount_in_return, roi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
@@ -66,6 +69,7 @@ const invest = async (req, res) => {
         ]
       );
 
+      console.log("Starting investment calculation loop...");
       const y = amount * 0.08;
       amountInReturn = amount + y;
       const daily = 0.08 / 30;
@@ -81,13 +85,11 @@ const invest = async (req, res) => {
           [amountInReturn, roi, start, investmentId]
         );
 
-        // Increment the amountInReturn for each second based on the 8% return
-
         // Increment the start value every second
         start++;
 
         // Check if the investment has reached its end time
-        console.log(start);
+        console.log("Current start value:", start);
         if (start === end) {
           // Update the end time and status in the database
           await pool.query(
@@ -95,11 +97,12 @@ const invest = async (req, res) => {
             ["completed", investmentId]
           );
 
-          const updateWalletQuery = `UPDATE ${db}.wallet SET investment_in_progress = ? WHERE wallet_id = ?`;
+          const updateWalletQuery = `UPDATE ${db}.wallets SET investment_in_progress = ? WHERE wallet_id = ?`;
           await pool.query(updateWalletQuery, [0, walletId]);
 
           // Clear the interval and stop the investment calculation
           clearInterval(interval);
+          console.log("Investment completed.");
         }
       }, 1000);
 

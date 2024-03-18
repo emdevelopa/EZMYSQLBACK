@@ -6,7 +6,7 @@ const URL = process.env.HOMEURL;
 async function toSend(smtpConfigs, username, email, encryptedData) {
   const sendEmail = async (smtpConfig) => {
     const transporter = nodemailer.createTransport({
-      service: smtpConfig.service,
+      // service: smtpConfig.service, //DEVELOPMENT
       host: smtpConfig.host,
       port: smtpConfig.port,
       secure: smtpConfig.secure,
@@ -19,7 +19,7 @@ async function toSend(smtpConfigs, username, email, encryptedData) {
     const mailOptions = {
       from: "no-reply@ezhedgefunds.com",
       to: email,
-      subject: "This is meeting you well",
+      subject: "Verify your account with EZHedgeFunds",
       html: `<html>
                 <body style="padding: 2em;display: flex;justify-content: center;align-items: center;">
                   <section style="font-family: Verdana, Geneva, Tahoma, sans-serif;text-align: left;">

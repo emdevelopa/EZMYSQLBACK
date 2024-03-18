@@ -58,10 +58,9 @@ const createUser = async (req, res) => {
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS ${db}.wallets (
-          wallet_id varchar(255) NOT NULL,
-          wallet_balance decimal(10,2) NOT NULL,
-          investment_in_progress tinyint(1) DEFAULT NULL,
-          PRIMARY KEY (wallet_id)
+          wallet_id CHAR(36) PRIMARY KEY,
+          wallet_balance DECIMAL(10, 2),
+          investment_in_progress BOOLEAN
         )
     `);
 
@@ -74,7 +73,7 @@ const createUser = async (req, res) => {
     // Insert wallet for the user
     await pool.query(
       `INSERT INTO ${db}.wallets (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)`,
-      [userId, 0, false]
+      [userId, 10000, false]
     );
 
     res
