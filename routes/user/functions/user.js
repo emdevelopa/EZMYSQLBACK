@@ -1,9 +1,9 @@
-const { pool } = require("../../db/database");
+const { pool } = require("../../../db/database");
 const uuid = require("uuid");
-const toSend = require("../../verifymail/mail");
-const smtpConfig = require("../../verifymail/smtpConfig");
+const toSend = require("../../../verifymail/mail");
+const smtpConfig = require("../../../verifymail/smtpConfig");
 const crypto = require("crypto");
-const db = require("../../db/getCurrrentDB");
+const db = require("../../../db/getCurrrentDB");
 
 const algorithm = "aes-256-cbc";
 const key = "abcdefghijklmnopqrstuvwxyz123456";

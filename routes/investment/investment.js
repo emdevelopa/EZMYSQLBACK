@@ -1,7 +1,7 @@
-const { pool } = require("../db/database");
+const { pool } = require("../../db/database");
 const uuid = require("uuid");
 const moment = require("moment");
-const db = require("../db/getCurrrentDB");
+const db = require("../../db/getCurrrentDB");
 
 const invest = async (req, res) => {
   const { userId, amount } = req.body;

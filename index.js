@@ -4,15 +4,17 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const OAuthPassport = require("./Oauth/app");
 const { startApp } = require("./db/database");
-const userRoutes = require("./routes/user");
-const oauthRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user/user");
+const oauthRoutes = require("./routes/Oauth/auth");
 const cookieParser = require("cookie-parser");
-const loginSession = require("./routes/loginsession");
-const getUserData = require("./routes/getUserData");
+const loginSession = require("./routes/loginSession/loginsession");
+const getUserData = require("./routes/user/getUserData");
 const session = require("express-session");
-const invest = require("./routes/investment");
-const investments = require("./routes/getInvestments");
+const invest = require("./routes/investment/investment");
+const investments = require("./routes/investment/getInvestments");
 const db = require("./db/getCurrrentDB");
+const addFunds = require("./routes/addFunds/addFunds");
+const getAddedFunds = require("./routes/addFunds/getAddedFunds");
 
 const app = express();
 
@@ -53,6 +55,8 @@ app.use("/login-session", loginSession);
 app.use("/get-userData/:userId", getUserData);
 app.use("/get-investments/:userId", investments);
 app.use("/invest", invest);
+app.use("/add-funds", addFunds);
+app.use("/get-deposits", getAddedFunds);
 
 // Start the server
 startApp(app);

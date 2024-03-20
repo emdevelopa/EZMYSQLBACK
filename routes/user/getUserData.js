@@ -1,6 +1,5 @@
-const { pool } = require("../db/database");
-const db = require("../db/getCurrrentDB");
-
+const { pool } = require("../../db/database");
+const db = require("../../db/getCurrrentDB");
 
 const getUserData = async (req, res) => {
   const userId = req.params.userId;
