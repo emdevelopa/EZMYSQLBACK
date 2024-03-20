@@ -21,6 +21,7 @@ const db = require("../db/getCurrrentDB");
 
 const investments = async (req, res) => {
   const userId = req.params.userId;
+  console.log(userId);
   if (userId) {
     try {
       const tableExistsQuery = `SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = ? AND table_name = 'investments'`;
