@@ -7,7 +7,7 @@ const getAddedFunds = async (req, res) => {
 
     const [fundsData] = await pool.query(fundsQuery);
 
-    console.log(fundsData);
+    // console.log(fundsData);
     res.json({ funds: fundsData });
   } catch (error) {
     console.log("Error fetching Funds: ", error);

@@ -15,6 +15,8 @@ const investments = require("./routes/investment/getInvestments");
 const db = require("./db/getCurrrentDB");
 const addFunds = require("./routes/addFunds/addFunds");
 const getAddedFunds = require("./routes/addFunds/getAddedFunds");
+const approveFund = require("./routes/addFunds/approveFund");
+const deleteFund = require("./routes/addFunds/deleteFund");
 
 const app = express();
 
@@ -24,7 +26,11 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 const corsOptions = {
   credentials: true,
-  origin: [process.env.USERDASHBOARDURL, process.env.HOMEURL],
+  origin: [
+    process.env.USERDASHBOARDURL,
+    process.env.HOMEURL,
+    process.env.ADMINURL,
+  ],
 };
 app.use(cors(corsOptions));
 
@@ -55,8 +61,11 @@ app.use("/login-session", loginSession);
 app.use("/get-userData/:userId", getUserData);
 app.use("/get-investments/:userId", investments);
 app.use("/invest", invest);
+
 app.use("/add-funds", addFunds);
 app.use("/get-deposits", getAddedFunds);
+app.use("/approve-fund/:transaction_id", approveFund);
+app.use("/delete-fund/:transaction_id", deleteFund);
 
 // Start the server
 startApp(app);

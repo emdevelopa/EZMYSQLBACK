@@ -1,7 +1,7 @@
 const { pool } = require("../../../db/database");
 const uuid = require("uuid");
-const toSend = require("../../../verifymail/mail");
-const smtpConfig = require("../../../verifymail/smtpConfig");
+const toSend = require("../../../mailsender/verifymail/mail");
+const smtpConfig = require("../../../mailsender/smtpConfig");
 const crypto = require("crypto");
 const db = require("../../../db/getCurrrentDB");
 
