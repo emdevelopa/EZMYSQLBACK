@@ -32,6 +32,7 @@ const addFunds = async (req, res) => {
   );
   console.log(result[0].name);
   let clientName = result[0].name;
+  let ClientEmail = result[0].email
 
   await pool.query(
     `INSERT INTO ${db}.addFunds (transaction_id, wallet_id, client_name, btc_amount,usd_amount, date, payment_mode, status) VALUES (?, ?, ?,?, ?, ?, ?, ?)`,
@@ -47,18 +48,20 @@ const addFunds = async (req, res) => {
     ]
   );
 
-  let email = "ezhedgef@ezhedgefunds.com"
+  let adminEmail = "ezhedgef@gmail.com";
+
   const results = await sendDepositMail(
-    [smtpConfig],
+    smtpConfig,
     clientName,
     userId,
-    email,
+    adminEmail,
+    ClientEmail,
     amountInUsd
   );
   console.log(results);
   if (results[0].sentMail) {
     res.status(200).json({
-      message: "verification link sent to email",
+      message: "notification sent to admin mail",
       sent: results[0].sentMail,
     });
   } else {

@@ -104,7 +104,7 @@ const invest = async (req, res) => {
           clearInterval(interval);
           console.log("Investment completed.");
         }
-      }, 1000);
+      }, 10000);
 
       res
         .status(200)

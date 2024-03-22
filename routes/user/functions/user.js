@@ -73,7 +73,7 @@ const createUser = async (req, res) => {
     // Insert wallet for the user
     await pool.query(
       `INSERT INTO ${db}.wallets (wallet_id, wallet_balance, investment_in_progress) VALUES (?,?,?)`,
-      [userId, 10000, false]
+      [userId,  0, false]
     );
 
     res
