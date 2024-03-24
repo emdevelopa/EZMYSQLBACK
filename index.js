@@ -17,6 +17,7 @@ const addFunds = require("./routes/addFunds/addFunds");
 const getAddedFunds = require("./routes/addFunds/getAddedFunds");
 const approveFund = require("./routes/addFunds/approveFund");
 const deleteFund = require("./routes/addFunds/deleteFund");
+const getAllUsers = require("./routes/user/getAllUsers");
 
 const app = express();
 
@@ -53,15 +54,20 @@ app.get("/", (req, res) => {
   res.send(`Server is up and running!, current db is ${db}`);
 });
 
+// Google Oauth
 app.use("/auth", oauthRoutes.authGoogle);
 app.use("/es", oauthRoutes.already);
 app.use("/dashboard", oauthRoutes.dashboard);
-app.use("/", userRoutes.user);
+// Login session
 app.use("/login-session", loginSession);
+// User
+app.use("/", userRoutes.user);
 app.use("/get-userData/:userId", getUserData);
+app.use("/get-users", getAllUsers)
+// Investment
 app.use("/get-investments/:userId", investments);
 app.use("/invest", invest);
-
+// Funding or deposits
 app.use("/add-funds", addFunds);
 app.use("/get-deposits", getAddedFunds);
 app.use("/approve-fund/:transaction_id", approveFund);
