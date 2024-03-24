@@ -29,7 +29,12 @@ const investments = async (req, res) => {
       if (tableExistsResult[0].count === 1) {
         const investmentsQuery = `SELECT * FROM ${db}.investments WHERE wallet_id = ? AND status='active'`;
         const [getInvestments] = await pool.query(investmentsQuery, [userId]);
-        res.json({ investments: getInvestments });
+        const AllInvestmentsQuery = `SELECT * FROM ${db}.investments WHERE wallet_id = ?`;
+        const [getAllInvestments] = await pool.query(AllInvestmentsQuery, [
+          userId,
+        ]);
+
+        res.json({ investments: getInvestments, history: getAllInvestments});
       } else {
         res.status(404).json({ error: "Investments table does not exist" });
       }

@@ -64,12 +64,13 @@ app.use("/login-session", loginSession);
 app.use("/", userRoutes.user);
 app.use("/get-userData/:userId", getUserData);
 app.use("/get-users", getAllUsers)
+app.use("/get-deposits/:wallet_id", getAddedFunds.getAddedFundsForUsers);
 // Investment
 app.use("/get-investments/:userId", investments);
 app.use("/invest", invest);
 // Funding or deposits
 app.use("/add-funds", addFunds);
-app.use("/get-deposits", getAddedFunds);
+app.use("/get-deposits", getAddedFunds.getAddedFundsForAdmin);
 app.use("/approve-fund/:transaction_id", approveFund);
 app.use("/delete-fund/:transaction_id", deleteFund);
 
