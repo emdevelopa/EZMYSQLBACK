@@ -27,12 +27,12 @@ const addFunds = async (req, res) => {
   `);
 
   const [result] = await pool.query(
-    `SELECT name FROM ${db}.users WHERE id = ?`,
+    `SELECT * FROM ${db}.users WHERE id = ?`,
     [userId]
   );
-  console.log(result[0].name);
+
   let clientName = result[0].name;
-  let ClientEmail = result[0].email
+  let ClientEmail = result[0].email;
 
   await pool.query(
     `INSERT INTO ${db}.addFunds (transaction_id, wallet_id, client_name, btc_amount,usd_amount, date, payment_mode, status) VALUES (?, ?, ?,?, ?, ?, ?, ?)`,
@@ -54,8 +54,8 @@ const addFunds = async (req, res) => {
     smtpConfig,
     clientName,
     userId,
-    adminEmail,
     ClientEmail,
+    adminEmail,
     amountInUsd
   );
   console.log(results);

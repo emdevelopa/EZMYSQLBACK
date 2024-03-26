@@ -3,11 +3,11 @@ const db = require("../../db/getCurrrentDB");
 
 const getAddedFundsForUsers = async (req, res) => {
   const walletId = req.params.wallet_id;
-  console.log(walletId);
+  // console.log(walletId);
   try {
     const userfundsQuery = `SELECT *, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') AS formatted_date FROM ${db}.addFunds WHERE wallet_id =?`;
     const [userfundsData] = await pool.query(userfundsQuery, [walletId]);
-    console.log(userfundsData);
+    // console.log(userfundsData);
 
     // console.log(fundsData);
     res.json({ funds: userfundsData });
@@ -16,13 +16,11 @@ const getAddedFundsForUsers = async (req, res) => {
   }
 };
 
-
 const getAddedFundsForAdmin = async (req, res) => {
   try {
     const fundsQuery = `SELECT *, DATE_FORMAT(date, '%Y-%m-%d %H:%i:%s') AS formatted_date FROM ${db}.addFunds`;
 
     const [fundsData] = await pool.query(fundsQuery);
-
 
     // console.log(fundsData);
     res.json({ funds: fundsData });
@@ -31,4 +29,4 @@ const getAddedFundsForAdmin = async (req, res) => {
   }
 };
 
-module.exports = {getAddedFundsForAdmin, getAddedFundsForUsers};
+module.exports = { getAddedFundsForAdmin, getAddedFundsForUsers };

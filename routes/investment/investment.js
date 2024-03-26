@@ -2,6 +2,8 @@ const { pool } = require("../../db/database");
 const uuid = require("uuid");
 const moment = require("moment");
 const db = require("../../db/getCurrrentDB");
+const sendInvestmentMail = require("../../mailsender/investments/investMail");
+const smtpConfig = require("../../mailsender/smtpConfig");
 
 const invest = async (req, res) => {
   const { userId, amount } = req.body;
@@ -68,6 +70,38 @@ const invest = async (req, res) => {
           roi,
         ]
       );
+
+      const [result] = await pool.query(
+        `SELECT * FROM ${db}.users WHERE id = ?`,
+        [userId]
+      );
+
+      let clientName = result[0].name;
+      let ClientEmail = result[0].email;
+      console.log(ClientEmail);
+      let adminEmail = "ezhedgef@gmail.com";
+
+      const results = await sendInvestmentMail(
+        smtpConfig,
+        clientName,
+        userId,
+        ClientEmail,
+        adminEmail,
+        amount
+      );
+      console.log(results);
+      if (results[0].sentMail) {
+        // res.status(200).json({
+        //   message: "notification sent to admin mail",
+        //   sent: results[0].sentMail,
+        // });
+        console.log(results[0].sentMail);
+      } else {
+        console.log(results[0].error);
+        // res
+        //   .status(503)
+        //   .json({ message: "failed to send mail", sent: results[0].error });
+      }
 
       console.log("Starting investment calculation loop...");
       const y = amount * 0.08;
