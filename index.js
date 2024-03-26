@@ -66,7 +66,8 @@ app.use("/get-userData/:userId", getUserData);
 app.use("/get-users", getAllUsers)
 app.use("/get-deposits/:wallet_id", getAddedFunds.getAddedFundsForUsers);
 // Investment
-app.use("/get-investments/:userId", investments);
+app.use("/get-investments/:userId", investments.investmentsUsers);
+app.use("/get-investments", investments.getInvestmentsAdmin)
 app.use("/invest", invest);
 // Funding or deposits
 app.use("/add-funds", addFunds);

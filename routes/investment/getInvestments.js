@@ -1,24 +1,10 @@
 // const { pool } = require("../db/database");
 // const db = require("../db/getCurrrentDB");
 
-// const investments = async (req, res) => {
-//   const userId = req.params.userId;
-//   if (userId) {
-//     const [getInvestments] = await pool.query(
-//       `SELECT * FROM ${db}.investments WHERE wallet_id = ? AND status='active'`,
-//       [userId]
-//     );
-//     // console.log();
-//     res.json({ investments: getInvestments[0] });
-//   }
-// };
-
-// module.exports = investments;
-
 const { pool } = require("../../db/database");
 const db = require("../../db/getCurrrentDB");
 
-const investments = async (req, res) => {
+const investmentsUsers = async (req, res) => {
   const userId = req.params.userId;
   // console.log(userId);
   if (userId) {
@@ -29,12 +15,12 @@ const investments = async (req, res) => {
       if (tableExistsResult[0].count === 1) {
         const investmentsQuery = `SELECT * FROM ${db}.investments WHERE wallet_id = ? AND status='active'`;
         const [getInvestments] = await pool.query(investmentsQuery, [userId]);
-        const AllInvestmentsQuery = `SELECT * FROM ${db}.investments WHERE wallet_id = ?`;
+        const AllInvestmentsQuery = `SELECT *, DATE_FORMAT(start_date, '%Y-%m-%d %H:%i:%s') AS formatted_date FROM ${db}.investments WHERE wallet_id = ?`;
         const [getAllInvestments] = await pool.query(AllInvestmentsQuery, [
           userId,
         ]);
 
-        res.json({ investments: getInvestments, history: getAllInvestments});
+        res.json({ investments: getInvestments, history: getAllInvestments });
       } else {
         res.status(404).json({ error: "Investments table does not exist" });
       }
@@ -47,4 +33,17 @@ const investments = async (req, res) => {
   }
 };
 
-module.exports = investments;
+const getInvestmentsAdmin = async (req, res) => {
+  const [getActiveInvestments] = await pool.query(
+    `SELECT * FROM ${db}.investments WHERE status='active'`
+  );
+  const AllInvestmentsQuery = `SELECT *, DATE_FORMAT(start_date, '%Y-%m-%d %H:%i:%s') AS formatted_date FROM ${db}.investments WHERE status='completed'`;
+  const [getAllInvestments] = await pool.query(AllInvestmentsQuery);
+  // console.log();
+  res.json({
+    active_investments: getActiveInvestments,
+    completed_investments: getAllInvestments,
+  });
+};
+
+module.exports = { investmentsUsers, getInvestmentsAdmin };
